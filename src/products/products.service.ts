@@ -18,4 +18,10 @@ export class ProductsService {
     db.products.push(newProduct);
     return newProduct;
   }
+  public editProduct(newProductData: Omit<Product, 'id'>, id): Product {
+    const updatedProduct = { ...newProductData, id };
+    const index = db.products.findIndex((elem) => elem.id === id);
+    db.products[index] = updatedProduct;
+    return updatedProduct;
+  }
 }
