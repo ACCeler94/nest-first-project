@@ -22,8 +22,8 @@ export class ProductsController {
     return this.productsService.getAll();
   }
   @Get('/:id')
-  getById(@Param('id', new ParseUUIDPipe()) id: 'string'): any {
-    const prod = this.productsService.getById(id);
+  async getById(@Param('id', new ParseUUIDPipe()) id: 'string'): Promise<any> {
+    const prod = await this.productsService.getById(id);
     if (!prod) {
       throw new NotFoundException('Product not found');
     } else {
@@ -31,26 +31,27 @@ export class ProductsController {
     }
   }
   @Delete('/:id')
-  deleteById(@Param('id', new ParseUUIDPipe()) id: 'string'): any {
-    if (!this.productsService.getById(id))
+  async deleteById(@Param('id', new ParseUUIDPipe()) id: string) {
+    if (!(await this.productsService.getById(id)))
       throw new NotFoundException('Product not found');
-
-    this.productsService.deleteById(id);
+    await this.productsService.deleteById(id);
     return { success: true };
   }
+
   @Post('/')
   create(@Body() productData: CreateProductDTO) {
     return this.productsService.create(productData);
   }
+
   @Put('/:id')
-  edit(
+  async edit(
     @Body() newProductData: UpdateProductDTO,
     @Param('id', new ParseUUIDPipe()) id: 'string',
   ) {
-    if (!this.productsService.getById(id))
+    if (!(await this.productsService.getById(id)))
       throw new NotFoundException('Product not found');
 
-    this.productsService.editProduct(newProductData, id);
+    await this.productsService.editProduct(id, newProductData);
     return { success: true };
   }
 }
