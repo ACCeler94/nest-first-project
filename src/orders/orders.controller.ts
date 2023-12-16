@@ -18,8 +18,8 @@ export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
   @Get('/')
-  getOrders(): any {
-    this.ordersService.getOrders();
+  getOrders() {
+    return this.ordersService.getOrders();
   }
 
   @Get('/:id')
