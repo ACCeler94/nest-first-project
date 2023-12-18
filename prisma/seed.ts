@@ -1,6 +1,37 @@
 import { PrismaClient } from '@prisma/client';
 const db = new PrismaClient();
 
+async function clearDatabase() {
+  await db.order.deleteMany();
+  await db.product.deleteMany();
+  await db.client.deleteMany();
+}
+
+function getClients() {
+  return [
+    {
+      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+      name: 'Client 1',
+      address: '123 Main St, City, Country',
+    },
+    {
+      id: '6d7fce9a-8e85-4631-8e32-c667fe4f77d8',
+      name: 'Client 2',
+      address: '456 Maple Ave, City, Country',
+    },
+    {
+      id: 'bd7a30e1-2f2e-4bbe-a335-2beabb1e6922',
+      name: 'Client 3',
+      address: '789 Oak Dr, City, Country',
+    },
+    {
+      id: '3ad53abb-a2de-410f-a42d-6dfcc53b4462',
+      name: 'Client 4',
+      address: '321 Pine Ln, City, Country',
+    },
+  ];
+}
+
 function getProducts() {
   return [
     {
@@ -40,20 +71,17 @@ function getOrders() {
   return [
     {
       id: 'fd105551-0f0d-4a9f-bc41-c559c8a17260',
-      client: 'John Doe',
-      address: '123 Main Street, London',
+      clientId: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
       productId: 'fd105551-0f0d-4a9f-bc41-c559c8a17256',
     },
     {
       id: 'fd105551-0f0d-4a9f-bc41-c559c8a17261',
-      client: 'Jane Doe',
-      address: '123 Main Street, London',
+      clientId: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
       productId: 'fd105551-0f0d-4a9f-bc41-c559c8a17256',
     },
     {
       id: 'fd105551-0f0d-4a9f-bc41-c559c8a17262',
-      client: 'Thomas Jefferson',
-      address: 'Baker Street 12B, New York',
+      clientId: '6d7fce9a-8e85-4631-8e32-c667fe4f77d8',
       productId: '01c7599d-318b-4b9f-baf7-51f3a936a2d4',
     },
   ];
@@ -61,16 +89,25 @@ function getOrders() {
 
 async function seed() {
   await Promise.all(
+    getClients().map((client) => {
+      return db.client.create({ data: client });
+    }),
+  );
+
+  await Promise.all(
     getProducts().map((product) => {
       return db.product.create({ data: product });
     }),
   );
 
   await Promise.all(
-    getOrders().map(({ productId, ...orderData }) => {
+    getOrders().map(({ productId, clientId, ...orderData }) => {
       return db.order.create({
         data: {
           ...orderData,
+          client: {
+            connect: { id: clientId },
+          },
           product: {
             connect: { id: productId },
           },
